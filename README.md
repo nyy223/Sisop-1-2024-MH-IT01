@@ -376,7 +376,6 @@
 
 ## Soal 4
 > Nayla 5027231054
-### Soal
 Soal nomor 4 meminta kita untuk membuat sebuah program untuk monitoring RAM dan size suatu directory. Kita diminta untuk membuat dua script. Script pertama, minute_log.sh, yaitu script untuk mencatat semua metrics hasil monitoring ke sebuah file log, dimana pencatatan metrics dalam script ini diharapkan untuk berjalan secara otomatis setiap menit. Sedangkan script kedua, aggregate_minutes_to_hourly_log.sh, yaitu script untuk mencatat info metrics yang tergenerate setiap menit dalam satu jam. Dalam hasil file agregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. Adapun ketentuan untuk pengerjaan soal ini adalah :
 1. Pastikan semua file log hanya dapat dibaca oleh user pemilik file. 
 2. Semua file log terletak di /home/{user}/log
@@ -384,5 +383,42 @@ Soal nomor 4 meminta kita untuk membuat sebuah program untuk monitoring RAM dan 
 ### Penyelesaian
 #### minute_log.sh
 ```bash
+#!/bin/bash
+# * * * * * /home/nayla/minute_log.sh
+```
+Baris pertama adalah shebang, yang memberi tahu sistem operasi bahwa skrip ini harus dijalankan dengan bash shell. Baris kedua merupakan perintah crontab, yaitu perintah atau script yang dijalankan secara otomatis pada waktu tertentu. * * * * * menunjukkan bahwa script minute_log.sh akan dijalankan setiap menit.
+```bash
+ram_metrics=$(free -m | awk 'NR==2 || NR==3 {
+    if (NR == 2) {
+        ram_values = $2","$3","$4","$5","$6","$7;
+    } else {
+        dir_values = $2","$3","$4;
+    }
+}
+END {
+    print ram_values "," dir_values;
+}')
+```
+Potongan kode di atas merupakan kode yang berfungsi untuk menampilkan penggunaan memori pada sistem dengan menggunakan command 'free -m'. 
+```bash
+target_path="/home/$(whoami)/log"
+mkdir -p "$target_path"
+dir_size=$(du -sh "$target_path" | awk '{print $1}')
+```
+Digunakan untuk menampilkan hasil monitor size dari direktori target. 
+```bash
+current_time=$(date "+%Y%m%d%H%M%S")
+
+echo "mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" >> "/home/$(whoami)/log/metrics_$current_time.log"
+echo "$ram_metrics,$target_path,$dir_size" >> "/home/$(whoami)/log/metrics_$current_time.log"
+chmod 600 /home/$(whoami)/log/metrics_$current_time.log
+```
+Nantinya, hasil monitor RAM dan size dari direktori target akan disimpan ke dalam file log yang memuat waktu saat script dijalankan di nama file tersebut. Chmod 600 berfungsi untuk mengatur izin agar hanya pemilik file yang dapat membaca dan menulis ke file tersebut.
+#### aggregate_minutes_to_hourly_log.sh
+```bash
+#!/bin/bash
+#0 * * * * /home/nayla/aggregate_minutes_to_hourly_log.sh
+```
+
 
 
