@@ -373,3 +373,16 @@
     touch login.sh register.sh
 #### - Pada bagian (b), kita diminta untuk membuat file register.sh agar pengguna bisa menggunakan email, username, pertanyaan keamanan dan jawaban, dan password untuk register user.
 
+
+## Soal 4
+> Nayla 5027231054
+### Soal
+Soal nomor 4 meminta kita untuk membuat sebuah program untuk monitoring RAM dan size suatu directory. Kita diminta untuk membuat dua script. Script pertama, minute_log.sh, yaitu script untuk mencatat semua metrics hasil monitoring ke sebuah file log, dimana pencatatan metrics dalam script ini diharapkan untuk berjalan secara otomatis setiap menit. Sedangkan script kedua, aggregate_minutes_to_hourly_log.sh, yaitu script untuk mencatat info metrics yang tergenerate setiap menit dalam satu jam. Dalam hasil file agregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. Adapun ketentuan untuk pengerjaan soal ini adalah :
+1. Pastikan semua file log hanya dapat dibaca oleh user pemilik file. 
+2. Semua file log terletak di /home/{user}/log
+3. Semua konfigurasi cron dapat ditaruh di file skrip .sh nya masing-masing dalam bentuk comment
+### Penyelesaian
+#### minute_log.sh
+```bash
+
+
