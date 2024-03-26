@@ -401,6 +401,101 @@ image.log
 [filename].txt
 [image].jpg
 
+### Penyelesaian
+#### awal.sh
+	#!/bin/bash
+
+	# Download file genshin.zip
+	wget -O genshin.zip --no-check-certificate -r 'https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN'
+
+	# Ekstrak genshin.zip yang berisi genshin_character.zip dan list_character.csv
+	unzip genshin.zip
+
+	# Ekstrak genshin_character.zip ke direktori genshin_character
+	unzip genshin_character.zip
+
+	# Masuk ke direktori genshin_character
+	cd genshin_character
+
+	# Loop melalui setiap file .jpg dalam direktori genshin_character
+	for file in *.jpg; do
+    	# Menghapus bagian '0a.jpg' dari nama file untuk mendapatkan hex string yang sesuai
+    	hexname=$(echo $file | sed 's/0a.jpg//')
+
+    	# Dekode hex string menjadi teks biasa
+    	decoded_name=$(echo -n $hexname | xxd -r -p)
+
+    	# Tambahkan kembali ekstensi .jpg ke nama file yang telah didekode
+    	new_name="${decoded_name}.jpg"
+
+    	# Rename file lama ke nama baru
+    	mv "$file" "$new_name"
+
+    	echo "File $file telah di-rename menjadi $new_name"
+	done
+
+	# Kembali ke direktori utama
+	cd ..
+
+	# Membaca list_character.csv dan merename file berdasarkan data di dalamnya
+	while IFS=, read -r name region element weapon; do
+    	# Skip header
+    	if [ "$name" == "Nama" ]; then
+        continue
+    	fi
+
+    	# Membangun path baru dan nama file
+    	new_filename="${region} - ${name} - ${element} - ${weapon}.jpg"
+    	old_filename="./genshin_character/${name}.jpg"
+
+    	# Cek jika file dengan nama karakter tersebut ada, lalu rename dan pindah
+    	if [ -f "$old_filename" ]; then
+        	# Membuat direktori berdasarkan region jika belum ada
+        	mkdir -p "./genshin_character/$region"
+        	# Merename dan memindahkan file ke direktori yang sesuai
+        	mv "$old_filename" "./genshin_character/$region/$new_filename"
+    	else
+        	echo "File untuk $name tidak ditemukan."
+    	fi
+	done < list_character.csv
+
+	# Menggunakan sed dan awk untuk menghitung jumlah penggunaan senjata dari file CSV
+	echo "Jumlah pengguna untuk setiap senjata:"
+	sed 's/\r//' list_character.csv | awk -F, 'NR > 1 {gsub(/^ +| +$/, "", $4); count[$4]++} END {for (weapon in count) print weapon " = " count[weapon]}'
+
+	# Hapus file zip dan CSV yang tidak lagi dibutuhkan
+	rm -f genshin.zip genshin_character.zip list_character.csv
+
+	echo "File sudah di dekode dan terorganisir, file zip dan csv juga sudah dihapus."
+
+### Penjelasan
+
+1. Download File: Script memulai dengan mendownload sebuah file ZIP dari URL yang disediakan, yang berisi gambar karakter Genshin Impact dan file CSV dengan detail karakter.
+
+2. Ekstraksi File: Setelah file ZIP didownload, script mengekstrak isinya untuk mengakses gambar karakter dan file CSV yang berisi informasi tentang karakter tersebut.
+
+3. Dekode Nama File: Setiap nama file gambar dienkripsi dalam format hexadecimal. Script mendekode nama-nama ini kembali ke teks biasa.
+
+4. Reorganisasi File: Berdasarkan data dari file CSV, script mengorganisir ulang gambar ke dalam direktori yang sesuai dengan region karakter, dan merename file gambar sesuai dengan format Region - Nama - Elemen - Senjata.jpg.
+
+5. Hitung Pengguna Senjata: Script menghitung jumlah karakter yang menggunakan setiap jenis senjata dan menampilkan hasilnya.
+
+6. Pembersihan: Sebagai langkah terakhir, script menghapus file yang tidak lagi diperlukan untuk menghemat ruang penyimpanan.
+
+#### Penjelasan Per Baris
+
+Baris 1-2: Shebang untuk menjalankan script dengan bash dan mendefinisikan URL dari file ZIP yang berisi data dan gambar karakter Genshin Impact.
+
+Baris 4-5: Mengunduh file ZIP menggunakan wget dan menyimpannya sebagai genshin.zip.
+
+Baris 7: Mengekstrak isi dari genshin.zip yang berisi genshin_character.zip dan selanjutnya mengekstrak genshin_character.zip ke direktori genshin_character.
+
+Baris 9-21: Membaca list_character.csv, melewati header, dan untuk setiap karakter, mencari file gambar yang sesuai berdasarkan nama yang di-decode dari hexadecimal, kemudian merename dan memindahkan gambar tersebut ke direktori yang sesuai dengan region karakter.
+
+Baris 23-32: Menginisialisasi sebuah associative array untuk menghitung jumlah penggunaan senjata, membaca list_character.csv lagi, dan mengumpulkan data jumlah penggunaan setiap senjata. Kemudian menampilkan hasilnya.
+
+Baris 34-35: Menghapus file genshin.zip, genshin_character.zip, dan list_character.csv yang tidak lagi dibutuhkan setelah pemrosesan selesai.
+
 ## Soal 4
 > Nayla 5027231054
 Soal nomor 4 meminta kita untuk membuat sebuah program untuk monitoring RAM dan size suatu directory. Kita diminta untuk membuat dua script. Script pertama, minute_log.sh, yaitu script untuk mencatat semua metrics hasil monitoring ke sebuah file log, dimana pencatatan metrics dalam script ini diharapkan untuk berjalan secara otomatis setiap menit. Sedangkan script kedua, aggregate_minutes_to_hourly_log.sh, yaitu script untuk mencatat info metrics yang tergenerate setiap menit dalam satu jam. Dalam hasil file agregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. Adapun ketentuan untuk pengerjaan soal ini adalah :
