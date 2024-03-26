@@ -468,7 +468,9 @@ image.log
 
 	echo "File sudah di dekode dan terorganisir, file zip dan csv juga sudah dihapus."
 
-### Penjelasan
+#### register.sh
+
+### Penjelasan awal.sh
 
 1. Download File: Script memulai dengan mendownload sebuah file ZIP dari URL yang disediakan, yang berisi gambar karakter Genshin Impact dan file CSV dengan detail karakter.
 
@@ -482,7 +484,7 @@ image.log
 
 6. Pembersihan: Sebagai langkah terakhir, script menghapus file yang tidak lagi diperlukan untuk menghemat ruang penyimpanan.
 
-#### Penjelasan Per Baris
+#### Penjelasan awal.sh Per Baris
 
 Baris 1-2: Shebang untuk menjalankan script dengan bash dan mendefinisikan URL dari file ZIP yang berisi data dan gambar karakter Genshin Impact.
 
