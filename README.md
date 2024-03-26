@@ -468,7 +468,7 @@ image.log
 
 	echo "File sudah di dekode dan terorganisir, file zip dan csv juga sudah dihapus."
 
-#### register.sh
+#### search.sh
 
 ### Penjelasan awal.sh
 
