@@ -745,6 +745,7 @@ Baris 34-35: Menghapus file genshin.zip, genshin_character.zip, dan list_charact
 
 ## Soal 4
 > Nayla 5027231054
+
 Soal nomor 4 meminta kita untuk membuat sebuah program untuk monitoring RAM dan size suatu directory. Kita diminta untuk membuat dua script. Script pertama, minute_log.sh, yaitu script untuk mencatat semua metrics hasil monitoring ke sebuah file log, dimana pencatatan metrics dalam script ini diharapkan untuk berjalan secara otomatis setiap menit. Sedangkan script kedua, aggregate_minutes_to_hourly_log.sh, yaitu script untuk mencatat info metrics yang tergenerate setiap menit dalam satu jam. Dalam hasil file agregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. Adapun ketentuan untuk pengerjaan soal ini adalah :
 1. Pastikan semua file log hanya dapat dibaca oleh user pemilik file. 
 2. Semua file log terletak di /home/{user}/log
@@ -968,3 +969,11 @@ echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_me
 chmod 600 "$log_dir/metrics_agg_${current_hour}.log"
 ```
 Mencetak informasi nilai maksimal, minimal, dan rata-rata pada masing-masing array sesuai dengan format yang ditentukan di soal. Chmod 600 berfungsi untuk mengatur akses file log agar hanya pemilik file yang dapat mengakses file tersebut. 
+#### Dokumentasi
+<img width="547" alt="Screenshot 2024-03-29 at 22 39 03" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/88628c11-ee8f-49a5-a7f1-391770eba927">
+<img width="800" alt="Screenshot 2024-03-29 at 22 38 50" src="htt<img width="637" alt="Screenshot 2024-03-29 at 22 38 37" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/e5460bb3-1954-434d-8c0a-20e5ab02f45b">
+ps://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/858a5dcf-8ad8-46a0-b7ae-08a3198f7942">
+![Uploading Screenshot 2024-03-29 at 22.38.37.png…]()
+
+
+
