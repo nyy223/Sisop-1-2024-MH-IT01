@@ -970,9 +970,11 @@ chmod 600 "$log_dir/metrics_agg_${current_hour}.log"
 ```
 Mencetak informasi nilai maksimal, minimal, dan rata-rata pada masing-masing array sesuai dengan format yang ditentukan di soal. Chmod 600 berfungsi untuk mengatur akses file log agar hanya pemilik file yang dapat mengakses file tersebut. 
 #### Dokumentasi
+Melihat perintah yang dijalankan oleh crontab untuk kedua script sh
 <img width="547" alt="Screenshot 2024-03-29 at 22 39 03" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/88628c11-ee8f-49a5-a7f1-391770eba927">
-<img width="637" alt="Screenshot 2024-03-29 at 22 38 37" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/b88664ae-bc94-49cb-b907-5894b588eb58">
 <img width="800" alt="Screenshot 2024-03-29 at 22 38 50" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/a2d2948a-b8d7-48a1-a6f6-6fe7be90e8d6">
+Ingin melihat apakah user lain bisa mengakses file log atau tidak
+<img width="637" alt="Screenshot 2024-03-29 at 22 38 37" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/b88664ae-bc94-49cb-b907-5894b588eb58">
 
 
 
