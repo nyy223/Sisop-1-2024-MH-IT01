@@ -12,7 +12,7 @@ echo ""
 
 echo "3 Kategori Barang dengan Profit Paling Tinggi:"
 awk -F ',' '{ if ($NF > max[$14]) { max[$14] = $NF; category[$14] = $14 } } END { PROCINFO["sorted_in"] = "@val_num_desc"; for (i in max) print category[i], max[i] }' SandBox.csv | head -n 3
-echo""
+echo ""
 
 echo "Tanggal dan Jumlah Pemesanan dari Adriaens:"
 grep 'Adriaens' SandBox.csv | awk -F ',' '{print $2, $18}'
