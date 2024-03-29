@@ -16,14 +16,12 @@ add_user() {
     read -s -p "Masukkan password: " password
     echo
 
-    # Validasi email unique
     if grep -q "^$email:" users.txt; then
         echo "Email sudah terdaftar!"
         log_message "REGISTER FAILED" "Failed registration attempt for user with email $email"
         exit 1
     fi
 
-    # Validasi panjang password
     if [ ${#password} -lt 8 ]; then
         echo "Password harus lebih dari 8 karakter!"
         log_message "REGISTER FAILED" "Failed registration attempt for user with email $email"
