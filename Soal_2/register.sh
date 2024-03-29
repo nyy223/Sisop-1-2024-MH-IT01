@@ -37,7 +37,6 @@ fi
 
 password_hash=$(echo -n "$password" | base64)
 
-# Kategorisasi admin
 if echo "$email" | grep -q "admin"; then
     role="admin"
 else
