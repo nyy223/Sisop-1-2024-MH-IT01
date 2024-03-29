@@ -88,6 +88,7 @@
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/56afbcd7-52f1-417e-a166-83c1cb29ba1e)
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/2542546d-f890-4a04-bdce-f86b3fe2e081)
 
+
 ## Soal 2
 > Rafael
 ### Soal
@@ -132,14 +133,12 @@
         read -s -p "Masukkan password: " password
         echo
     
-        # Validasi email unique
         if grep -q "^$email:" users.txt; then
             echo "Email sudah terdaftar!"
             log_message "REGISTER FAILED" "Failed registration attempt for user with email $email"
             exit 1
         fi
     
-        # Validasi panjang password
         if [ ${#password} -lt 8 ]; then
             echo "Password harus lebih dari 8 karakter!"
             log_message "REGISTER FAILED" "Failed registration attempt for user with email $email"
@@ -356,7 +355,6 @@
     
     password_hash=$(echo -n "$password" | base64)
     
-    # Kategorisasi admin
     if echo "$email" | grep -q "admin"; then
         role="admin"
     else
@@ -371,7 +369,251 @@
 ### Penjelasan
 #### - Pada bagian (a), kita diminta untuk membuat 2 program yaitu login.sh dan register.sh. Kita bisa membuatnya dengan command di bawah ini.
     touch login.sh register.sh
+    
 #### - Pada bagian (b), kita diminta untuk membuat file register.sh agar pengguna bisa menggunakan email, username, pertanyaan keamanan dan jawaban, dan password untuk register user.
+    read -p "Masukkan email: " email
+    read -p "Masukkan username: " username
+    read -p "Masukkan pertanyaan keamanan: " security_question
+    read -p "Masukkan jawaban: " security_answer
+    read -s -p "Masukkan password: " password
+    echo
+##### Kode ini kita gunakan untuk meminta pengguna memasukkan email, username, pertanyaan keamanan, jawaban keamanan, dan password. '-p' digunakan untuk menampilkan pesan prompt sebelum meminta input, sementara '-s' pada perintah 'read' digunakan untuk menyembunyikan input password dari tampilan layar saat dimasukkan.
+
+#### - Pada bagian (c), kita diminta untuk membuat email yang mengandung kata admin dikategorikan menjadi admin    
+    if echo "$email" | grep -q "admin"; then
+        role="admin"
+    else
+        role="user"
+    fi
+##### Kode ini berfungsi untuk melakukan pengecekan apakah email mengandung kata 'admin'. Jika iya, maka variabel 'role' akan diatur sebagai 'admin'. Jika tidak, maka variabel 'role' akan diatur sebagai 'user'.
+
+#### - Pada bagian (d), kita diminta untuk mengatur password agar berkeamanan tinggi dengan ketentuan password tersebut harus di encrypt menggunakan base64, harus lebih dari 8 karakter, harus terdapat paling sedikit 1 huruf kapital dan 1 huruf kecil, dan harus terdapat paling sedikit 1 angka.
+    if [ ${#password} -lt 8 ]; then
+        echo "Password harus lebih dari 8 karakter!"
+        exit 1
+    fi
+    
+    if ! echo "$password" | grep -q '[[:lower:]]' || ! echo "$password" | grep -q '[[:upper:]]' || ! echo "$password" | grep -q '[[:digit:]]'; then
+        echo "Password harus mengandung minimal 1 huruf kecil, 1 huruf kapital, dan 1 angka!"
+        exit 1
+    fi
+    
+    password_hash=$(echo -n "$password" | base64)
+##### Kode ini kita gunakan untuk memeriksa panjang dan persyaratan password yang akan dimasukkan. Jika password kurang dari 8 karakter, atau tidak mengandung minimal satu huruf kecil, satu huruf kapital, dan satu angka, maka program akan menampilkan pesan kesalahan dan keluar. Jika password memenuhi syarat, program akan menghasilkan hash password menggunakan base64.
+
+#### - Pada bagian (e), kita diminta untuk menyimpan catatan seluruh email, username, pertanyaan keamanan dan jawaban, dan password hash ke dalam folder users file users.txt.
+    echo "$email:$username:$security_question:$security_answer:$password_hash:$role" >> users.txt
+##### Kode ini digunakan untuk menyimpan seluruh data register yang mengandung catatan seluruh email, username, pertanyaan keamanan dan jawaban, dan password hash ke dalam folder users file users.txt.
+
+#### - Pada bagian (f), kita diminta untuk melakukan login yang dimana login ini hanya dilakukan menggunakan email dan password.
+    if [ "$option" == "1" ]; then
+        read -p "Masukkan email: " email
+        read -s -p "Masukkan password: " password
+        echo
+    
+        user_data=$(grep "^$email:" users.txt)
+    
+        if [ -z "$user_data" ]; then
+            echo "Email tidak terdaftar!"
+            exit 1
+        fi
+    
+        password_hash=$(echo "$user_data" | cut -d':' -f5)
+        role=$(echo "$user_data" | cut -d':' -f6)
+    
+        input_password_hash=$(echo -n "$password" | base64)
+    
+        if [ "$input_password_hash" != "$password_hash" ]; then
+            echo "Password salah!"
+            exit 1
+        fi
+##### Kode ini kita gunakan untuk meminta pengguna memasukkan email dan password. Kemudian, program akan mencari data pengguna berdasarkan email yang dimasukkan dalam file "users.txt". Jika email tidak ditemukan, program akan menampilkan pesan "Email tidak terdaftar!" dan keluar dengan kode status 1. Selanjutnya, program akan mengambil hash password dan peran (role) dari data pengguna yang ditemukan. Jika hash password tidak cocok, program akan menampilkan pesan "Password salah!" dan keluar dengan kode status 1.
+
+#### - Pada bagian (g), kita diminta untuk membuat pilihan lupa password dan akan keluar pertanyaan keamanan dan ketika dijawab dengan benar bisa memunculkan password ketika login.
+    elif [ "$option" == "2" ]; then
+        read -p "Masukkan email: " email
+        read -p "Masukkan pertanyaan keamanan: " security_question
+        read -p "Masukkan jawaban: " security_answer
+    
+        user_data=$(grep "^$email:" users.txt)
+    
+        if [ -z "$user_data" ]; then
+            echo "Email tidak terdaftar!"
+            exit 1
+        fi
+    
+        saved_security_answer=$(echo "$user_data" | cut -d':' -f4)
+        if [ "$security_answer" != "$saved_security_answer" ]; then
+            echo "Jawaban keamanan salah!"
+            exit 1
+        fi
+    
+        saved_password_hash=$(echo "$user_data" | cut -d':' -f5)
+        saved_password=$(echo "$saved_password_hash" | base64 -d)
+        echo "Password anda adalah: $saved_password"
+    else
+        echo "Opsi tidak valid."
+    fi
+##### Kode ini digunakan untuk meminta pengguna untuk memasukkan email, pertanyaan keamanan, dan jawaban keamanan. Kemudian, program akan mencari data pengguna berdasarkan email yang dimasukkan dalam file "users.txt". Jika email tidak ditemukan (tidak ada data yang cocok), program akan menampilkan pesan "Email tidak terdaftar!" dan keluar dengan kode status 1.Selanjutnya, program akan membandingkan jawaban keamanan yang dimasukkan pengguna dengan jawaban keamanan yang tersimpan dalam data pengguna. Jika jawaban keamanan tidak cocok, program akan menampilkan pesan "Jawaban keamanan salah!" dan keluar dengan kode status 1. Jika jawaban keamanan cocok, program akan mengambil hash password dari data pengguna, mendekode hash password tersebut menggunakan base64, dan menampilkan password asli kepada pengguna.
+
+#### - Pada bagian (h), kita diminta agar setelah user melakukan login akan keluar pesan sukses, namun setelah seorang admin melakukan login, admin bisa menambah, mengedit (username, pertanyaan keamanan dan jawaban, dan password), dan menghapus user . 
+    add_user() {
+        read -p "Masukkan email: " email
+        read -p "Masukkan username: " username
+        read -p "Masukkan pertanyaan keamanan: " security_question
+        read -p "Masukkan jawaban: " security_answer
+        read -s -p "Masukkan password: " password
+        echo
+    
+        if grep -q "^$email:" users.txt; then
+            echo "Email sudah terdaftar!"
+            exit 1
+        fi
+    
+        if [ ${#password} -lt 8 ]; then
+            echo "Password harus lebih dari 8 karakter!"
+            exit 1
+        fi
+    
+        if ! echo "$password" | grep -q '[[:lower:]]' || ! echo "$password" | grep -q '[[:upper:]]' || ! echo "$password" | grep -q '[[:digit:]]'; then
+            echo "Password harus mengandung minimal 1 huruf kecil, 1 huruf kapital, dan 1 angka!"
+            exit 1
+        fi
+    
+        password_hash=$(echo -n "$password" | base64)
+    
+        if echo "$email" | grep -q "admin"; then
+            role="admin"
+        else
+            role="user"
+        fi
+    
+        echo "$email:$username:$security_question:$security_answer:$password_hash:$role" >> users.txt
+        echo "Registrasi berhasil!"
+    }
+    
+    edit_user() {
+        read -p "Masukkan email user yang ingin diedit: " edit_email
+    
+        user_data=$(grep "^$edit_email:" users.txt)
+    
+        if [ -z "$user_data" ]; then
+            echo "User dengan email $edit_email tidak ditemukan!"
+            exit 1
+        fi
+    
+        read -p "Masukkan username baru: " new_username
+        read -p "Masukkan pertanyaan keamanan baru: " new_security_question
+        read -p "Masukkan jawaban baru: " new_security_answer
+        read -s -p "Masukkan password baru: " new_password
+        echo
+    
+        if [ ${#new_password} -lt 8 ]; then
+            echo "Password baru harus lebih dari 8 karakter!"
+            exit 1
+        fi
+    
+        if ! echo "$new_password" | grep -q '[[:lower:]]' || ! echo "$new_password" | grep -q '[[:upper:]]' || ! echo "$new_password" | grep -q '[[:digit:]]'; then
+            echo "Password baru harus mengandung minimal 1 huruf kecil, 1 huruf kapital, dan 1 angka!"
+            exit 1
+        fi
+    
+        new_password_hash=$(echo -n "$new_password" | base64)
+    
+        sed -i "s/^$edit_email:.*/$edit_email:$new_username:$new_security_question:$new_security_answer:$new_password_hash:${user_data##*:}/" users.txt
+        echo "User dengan email $edit_email berhasil diedit!"
+    }
+    
+    delete_user() {
+        read -p "Masukkan email user yang ingin dihapus: " delete_email
+    
+        user_data=$(grep "^$delete_email:" users.txt)
+    
+        if [ -z "$user_data" ]; then
+            echo "User dengan email $delete_email tidak ditemukan!"
+            exit 1
+        fi
+    
+        sed -i "/^$delete_email:.*/d" users.txt
+        echo "User dengan email $delete_email berhasil dihapus!"
+    }
+	echo "Login berhasil!"
+        if [ "$role" == "admin" ]; then
+            admin_menu() {
+                echo "Menu Admin:"
+                echo "1. Tambah User"
+                echo "2. Edit User"
+                echo "3. Delete User"
+                echo "4. Logout"
+                read -p "Pilih opsi (1/2/3/4): " admin_option
+    
+                case $admin_option in
+                    1)
+                        add_user
+                        ;;
+                    2)
+                        edit_user
+                        ;;
+                    3)
+                        delete_user
+                        ;;
+                    4)
+                        echo "Anda Berhasil Keluar."
+                        ;;
+                    *)
+                        echo "Opsi tidak valid."
+                        ;;
+                esac
+            }
+            admin_menu
+        else
+            echo "Anda Tidak Memiliki Hak Admin!"
+            read -p "Log out? (y/n): " logout_option
+##### Kode ini digunakan untuk mengecek apakah pengguna memiliki hak admin atau tidak setelah berhasil login. Jika pengguna adalah admin, maka akan ditampilkan menu admin yang berisi opsi untuk tambah user, edit user, delete user, dan logout. Jika pengguna bukan admin, akan muncul pesan "Anda Tidak Memiliki Hak Admin" dengan opsi untuk logout. Jika pengguna memilih untuk logout, akan muncul pesan "Anda Berhasil Keluar."
+
+#### - Pada bagian (i), kita diminta agar saat admin ingin melakukan edit atau hapus user, maka akan keluar input email untuk identifikasi user yang akan di hapus atau di edit
+    edit_user() {
+        read -p "Masukkan email user yang ingin diedit: " edit_email
+    
+        user_data=$(grep "^$edit_email:" users.txt)
+    
+        if [ -z "$user_data" ]; then
+            echo "User dengan email $edit_email tidak ditemukan!"
+            exit 1
+        fi
+	
+    delete_user() {
+        read -p "Masukkan email user yang ingin dihapus: " delete_email
+    
+        user_data=$(grep "^$delete_email:" users.txt)
+    
+        if [ -z "$user_data" ]; then
+            echo "User dengan email $delete_email tidak ditemukan!"
+            exit 1
+        fi
+##### Kode ini digunakan untuk meminta pengguna memasukkan email dari pengguna yang ingin diedit dan dihapus. Kemudian, program mencari data pengguna berdasarkan email tersebut dalam file "users.txt". Jika data pengguna tidak ditemukan, pesan "User dengan email $edit_email tidak ditemukan!" ditampilkan dan program keluar dengan kode status 1.
+
+#### Terakhir, pada bagian (j), kita diminta untuk membuat program yang bisa mencatat seluruh log ke dalam folder users file auth.log, baik login ataupun register.
+	log_message() {
+	    local type=$1
+	    local message=$2
+	    local timestamp=$(date +"[%d/%m/%y %H:%M:%S]")
+	
+	    echo "$timestamp [$type] $message" >> auth.log
+	}
+	
+	log_message "REGISTER FAILED" "Failed registration attempt for user with email $email"
+	log_message "REGISTER SUCCESS" "User $username registered successfully with email $email"
+	log_message "USER EDIT FAILED" "Failed user edit attempt for email $edit_email"
+	log_message "USER EDIT SUCCESS" "User with email $edit_email edited successfully"
+	log_message "USER DELETE FAILED" "Failed user delete attempt for email $delete_email"
+	log_message "USER DELETE SUCCESS" "User with email $delete_email deleted successfully"
+	log_message "LOGIN FAILED" "Failed login attempt on user with email $email"
+	log_message "LOGOUT" "User $email logged out"
+	log_message "PASSWORD RESET FAILED" "Failed password reset attempt for user with email $email"
+	log_message "PASSWORD RESET SUCCESS" "Password reset successful for user with email $email"
+##### Kode ini  digunakan untuk mencatat kejadian yang terjadi dalam skrip Anda ke dalam file "auth.log". Kode ini berisi berbagai jenis pesan log seperti registrasi berhasil/gagal, edit user berhasil/gagal, delete user berhasil/gagal, login berhasil/gagal, logout, serta reset password berhasil/gagal.
+
 
 ## Soal 3
 > Ryan 5027231046
@@ -500,6 +742,7 @@ Baris 23-32: Menginisialisasi sebuah associative array untuk menghitung jumlah p
 
 Baris 34-35: Menghapus file genshin.zip, genshin_character.zip, dan list_character.csv yang tidak lagi dibutuhkan setelah pemrosesan selesai.
 
+
 ## Soal 4
 > Nayla 5027231054
 Soal nomor 4 meminta kita untuk membuat sebuah program untuk monitoring RAM dan size suatu directory. Kita diminta untuk membuat dua script. Script pertama, minute_log.sh, yaitu script untuk mencatat semua metrics hasil monitoring ke sebuah file log, dimana pencatatan metrics dalam script ini diharapkan untuk berjalan secara otomatis setiap menit. Sedangkan script kedua, aggregate_minutes_to_hourly_log.sh, yaitu script untuk mencatat info metrics yang tergenerate setiap menit dalam satu jam. Dalam hasil file agregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. Adapun ketentuan untuk pengerjaan soal ini adalah :
@@ -545,6 +788,3 @@ Nantinya, hasil monitor RAM dan size dari direktori target akan disimpan ke dala
 #!/bin/bash
 #0 * * * * /home/nayla/aggregate_minutes_to_hourly_log.sh
 ```
-
-
-
