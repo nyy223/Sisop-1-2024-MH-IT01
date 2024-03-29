@@ -784,7 +784,187 @@ chmod 600 /home/$(whoami)/log/metrics_$current_time.log
 ```
 Nantinya, hasil monitor RAM dan size dari direktori target akan disimpan ke dalam file log yang memuat waktu saat script dijalankan di nama file tersebut. Chmod 600 berfungsi untuk mengatur izin agar hanya pemilik file yang dapat membaca dan menulis ke file tersebut.
 #### aggregate_minutes_to_hourly_log.sh
+##### code sebelum revisi 
+```bash
+#!/bin/bash
+#0 * * * * /home/nayla/aggregate_minutes_to_hourly_log.sh
+
+log_dir="/home/$(whoami)/log/"
+current_hour=$(date "+%Y%m%d%H")
+declare -A metrics_array
+
+for file in $log_dir/metrics_${current_hour}*.log; do
+    # Membaca metrics dari setiap file
+    while IFS=',' read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
+        # Memasukkan metrics ke dalam array
+        metrics_array["mem_total"]+=" $mem_total"
+        metrics_array["mem_used"]+=" $mem_used"
+        metrics_array["mem_free"]+=" $mem_free"
+        metrics_array["mem_shared"]+=" $mem_shared"
+        metrics_array["mem_buff"]+=" $mem_buff"
+        metrics_array["mem_available"]+=" $mem_available"
+        metrics_array["swap_total"]+=" $swap_total"
+        metrics_array["swap_used"]+=" $swap_used"
+        metrics_array["swap_free"]+=" $swap_free"
+        metrics_array["path_size"]+=" $path_size"
+    done < "$file"
+done
+
+min_values=""
+max_values=""
+avg_values=""
+
+for metric in "mem_total" "mem_used" "mem_free" "mem_shared" "mem_buff" "mem_available" "swap_total" "swap_used" "swap_free" "path_size"; do
+    IFS=' ' read -r -a values_array <<< "${metrics_array[$metric]}"
+    values_array=("${values_array[@]/%M/}")
+    values_array=($(echo "${values_array[@]}" | grep -o '[0-9]*'))
+    min=$(printf '%s\n' "${values_array[@]}" | sort -n | head -n1)
+    max=$(printf '%s\n' "${values_array[@]}" | sort -n | tail -n1)
+    sum=0
+    count=0
+    for value in "${values_array[@]}"; do
+        sum=$((sum + value))
+        ((count++))
+    done
+    if ((count > 0)); then
+        avg=$(echo "scale=2; $sum / $count" | bc)
+    else
+        avg="N/A"
+    fi
+    min_values+="$min,"
+    max_values+="$max,"
+    avg_values+="$avg,"
+done
+
+echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" >> "$log_dir/metrics_agg_${current_hour}.log"
+echo "minimum,$min_values" >> "$log_dir/metrics_agg_${current_hour}.log"
+echo "maximum,$max_values" >> "$log_dir/metrics_agg_${current_hour}.log"
+echo "average,$avg_values" >> "$log_dir/metrics_agg_${current_hour}.log"
+chmod 600 "$log_dir/metrics_agg_${current_hour}.log"
+```
+##### code setelah revisi 
 ```bash
 #!/bin/bash
 #0 * * * * /home/nayla/aggregate_minutes_to_hourly_log.sh
 ```
+Baris pertama adalah shebang, yang memberi tahu sistem operasi bahwa skrip ini harus dijalankan dengan bash shell. Baris kedua merupakan perintah crontab, yaitu perintah atau script yang dijalankan secara otomatis pada waktu tertentu. 0 * * * * menunjukkan bahwa script aggregate_minutes_to_hourly_log.sh akan dijalankan setiap jam.
+```bash
+log_dir="/home/$(whoami)/log/"
+timestamp=$(date "+%Y%m%d%H")
+```
+Baris pertama digunakan untuk menyimpan informasi tempat script minute_log.sh dan aggregate_minutes_to_hourly_log.sh diletakkan. Baris kedua digunakan untuk menyimpan informasi waktu saat ini dalam bentuk jam.
+```bash
+mem_total_arr=()
+mem_used_arr=()
+mem_free_arr=()
+mem_shared_arr=()
+mem_buff_arr=()
+mem_available_arr=()
+swap_total_arr=()
+swap_used_arr=()
+swap_free_arr=()
+path_size_arr=()
+```
+Merupakan bagian untuk inisialisasi beberapa array kosong, yang nantinya akan digunakan untuk menyimpan metrics dari file log.
+```bash
+for file in "$log_dir"metrics_${timestamp}*.log; do
+    while IFS=, read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
+        mem_total_arr+=("$mem_total")
+        mem_used_arr+=("$mem_used")
+        mem_free_arr+=("$mem_free")
+        mem_shared_arr+=("$mem_shared")
+        mem_buff_arr+=("$mem_buff")
+        mem_available_arr+=("$mem_available")
+        swap_total_arr+=("$swap_total")
+        swap_used_arr+=("$swap_used")
+        swap_free_arr+=("$swap_free")
+        path_size_val=$(echo "$path_size" | tr -d '[:alpha:]')
+        path_size_arr+=("$path_size_val")
+    done < "$file"
+done
+```
+For loop berlaku untuk semua file yang ada di directory log_dir yang memiliki pola nama metrics_${timestamp}*.log. Loop ini akan membaca setaip baris dari file log, lalu menyimpannya ke dalam variabel array seperti mem_total_arr, mem_used_arr, dan lain-lain.
+```bash
+calculate_min() {
+    echo "$@" | tr ' ' '\n' | sort -n | head -n1
+}
+```
+Menghitung nilai minimal dengan cara mengurutkan angka terlebih dahulu dari yang terkecil hingga terbesar, lalu menggunakan perintah head -n1 untuk mencetak angka pertama, yaitu angka yang paling kecil.
+```bash
+calculate_max() {
+    echo "$@" | tr ' ' '\n' | sort -rn | head -n1
+}
+```
+Menghitung nilai maksimal dengan cara mengurutkan angka terlebih dahulu dari yang terbesar hingga terkecil, lalu menggunakan perintah head -n1 untuk mencetak angka pertama, yaitu angka yang paling besar.
+```bash
+calculate_avg() {
+    local sum=0
+    local count=0
+    for val in $@; do
+        sum=$(echo "$sum + $val" | bc)
+        ((count++))
+    done
+    printf "%.f" $(echo "scale=2; $sum / $count" | bc)
+}
+```
+Fungsi untuk menghitung rata-rata. Mendeklarasikan variabel sum dan count dahulu secara lokal dan men-set nya ke 0. Lalu akan dilakukan loop untuk menjumlahkan nilai-nilai yang ada di dalam array. Variabel count digunakan untuk menghitung jumlah penjumlahan yang terjadi, sehingga secara tidak langsung dapat berguna untuk menghitung jumlah data yang ada di dalam array. Penghitungan rata-rata dilakukan dengan membagi sum (jumlah dari semua nilai) dengan count (jumlah data).
+```bash
+mem_total_arr=($(echo "${mem_total_arr[@]}" | grep -o '[0-9]*'))
+min_mem_total=$(calculate_min "${mem_total_arr[@]}")
+max_mem_total=$(calculate_max "${mem_total_arr[@]}")
+avg_mem_total=$(calculate_avg "${mem_total_arr[@]}")
+
+mem_used_arr=($(echo "${mem_used_arr[@]}" | grep -o '[0-9]*'))
+min_mem_used=$(calculate_min "${mem_used_arr[@]}")
+max_mem_used=$(calculate_max "${mem_used_arr[@]}")
+avg_mem_used=$(calculate_avg "${mem_used_arr[@]}")
+
+mem_free_arr=($(echo "${mem_free_arr[@]}" | grep -o '[0-9]*'))
+min_mem_free=$(calculate_min "${mem_free_arr[@]}")
+max_mem_free=$(calculate_max "${mem_free_arr[@]}")
+avg_mem_free=$(calculate_avg "${mem_free_arr[@]}")
+
+mem_shared_arr=($(echo "${mem_shared_arr[@]}" | grep -o '[0-9]*'))
+min_mem_shared=$(calculate_min "${mem_shared_arr[@]}")
+max_mem_shared=$(calculate_max "${mem_shared_arr[@]}")
+avg_mem_shared=$(calculate_avg "${mem_shared_arr[@]}")
+
+mem_buff_arr=($(echo "${mem_buff_arr[@]}" | grep -o '[0-9]*'))
+min_mem_buff=$(calculate_min "${mem_buff_arr[@]}")
+max_mem_buff=$(calculate_max "${mem_buff_arr[@]}")
+avg_mem_buff=$(calculate_avg "${mem_buff_arr[@]}")
+
+mem_available_arr=($(echo "${mem_available_arr[@]}" | grep -o '[0-9]*'))
+min_mem_available=$(calculate_min "${mem_available_arr[@]}")
+max_mem_available=$(calculate_max "${mem_available_arr[@]}")
+avg_mem_available=$(calculate_avg "${mem_available_arr[@]}")
+
+swap_total_arr=($(echo "${swap_total_arr[@]}" | grep -o '[0-9]*'))
+min_swap_total=$(calculate_min "${swap_total_arr[@]}")
+max_swap_total=$(calculate_max "${swap_total_arr[@]}")
+avg_swap_total=$(calculate_avg "${swap_total_arr[@]}")
+
+swap_used_arr=($(echo "${swap_used_arr[@]}" | grep -o '[0-9]*'))
+min_swap_used=$(calculate_min "${swap_used_arr[@]}")
+max_swap_used=$(calculate_max "${swap_used_arr[@]}")
+avg_swap_used=$(calculate_avg "${swap_used_arr[@]}")
+
+swap_free_arr=($(echo "${swap_free_arr[@]}" | grep -o '[0-9]*'))
+min_swap_free=$(calculate_min "${swap_free_arr[@]}")
+max_swap_free=$(calculate_max "${swap_free_arr[@]}")
+avg_swap_free=$(calculate_avg "${swap_free_arr[@]}")
+
+path_size_arr=($(echo "${path_size_arr[@]}" | grep -o '[0-9]*'))
+min_path_size=$(calculate_min "${path_size_arr[@]}")
+max_path_size=$(calculate_max "${path_size_arr[@]}")
+avg_path_size=$(calculate_avg "${path_size_arr[@]}")
+```
+Pertama, mengubah data yang ada di array agar menjadi nilai numerik saja. Hal ini dilakukan agar perhitungan nilai maksimal, minimal, dan rata-rata dapat dilakukan. Setelah mengubahnya menjadi angka, dilakukan perhitungan nilai maksimal, minimal, dan rata-rata untuk masing-masing array.
+```bash
+echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > "${log_dir}metrics_agg_${timestamp}.log"
+echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,$log_dir,$min_path_size M" >> "${log_dir}metrics_agg_${timestamp}.log"
+echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,$log_dir,$max_path_size M" >> "${log_dir}metrics_agg_${timestamp}.log"
+echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,$log_dir,$avg_path_size M" >> "${log_dir}metrics_agg_${timestamp}.log"
+chmod 600 "$log_dir/metrics_agg_${current_hour}.log"
+```
+Mencetak informasi nilai maksimal, minimal, dan rata-rata pada masing-masing array sesuai dengan format yang ditentukan di soal. Chmod 600 berfungsi untuk mengatur akses file log agar hanya pemilik file yang dapat mengakses file tersebut. 
