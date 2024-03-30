@@ -614,6 +614,17 @@
 	log_message "PASSWORD RESET SUCCESS" "Password reset successful for user with email $email"
 ##### Kode ini  digunakan untuk mencatat kejadian yang terjadi dalam skrip Anda ke dalam file "auth.log". Kode ini berisi berbagai jenis pesan log seperti registrasi berhasil/gagal, edit user berhasil/gagal, delete user berhasil/gagal, login berhasil/gagal, logout, serta reset password berhasil/gagal.
 
+### Dokumentasi
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/8c73038a-50b7-471e-bf8d-00378da8c67e)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/241a8a05-6fbe-4100-a689-45d4de0e71dc)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/b8dcb980-a6df-4206-b93c-40b325f59b58)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/5e2af1d5-e126-4495-90d8-7bcfc9e44e72)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/b2910729-275d-4952-8dc2-cf9c01b7e37f)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/8cd08bb7-ce82-49e3-978d-931f3f008bab)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/24c4d0f6-55a9-41dd-a41e-6b862d1eaadd)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/479172b2-7ce9-4c14-8bee-c097ee0cbebd)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/4f662fe2-8adf-4eec-bb2f-6bd473f7b87a)
+
 
 ## Soal 3
 > Ryan 5027231046
