@@ -887,6 +887,49 @@ image.log
 		done < <(find "$direktori_gambar" -type f -name "*.jpg")
 
 
+### Dokumentasi
+
+##File jpg sebelum didekode
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/aa56e49c-aade-4ad3-91ca-4faed25dfbc7)
+
+##File jpg setelah didekode namun belum diorganisir dan belum di rename sesuai format
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/a755672b-5c5e-44d2-8d73-ed150b14c065)
+
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/5c3b44b4-92e4-441f-9754-0c256f6a56e9)
+
+##File jpg setelah di organisir dan di rename sesuai format
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/f7fb4137-303d-44a2-8189-51f36089b383)
+
+#Fontaine
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/53572a46-c131-4797-b43f-e5c4d0818b98)
+
+#Inazuma
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/7e89394d-4408-4f7a-bbd0-b02a8c242139)
+
+#Liyue
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/09d90fc8-c5b2-47f9-8864-5ce1c772ef65)
+
+#Mondstat
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/cb1a6b28-3fce-43ba-a1bc-55e76210136c)
+
+#Sumeru
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/281c3c18-62dc-4b40-9bdb-d618127b98c1)
+
+##Penghitungan jumlah pengguna senjata dan akhir dari awal.sh
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/ff09d8c9-28c2-4ed3-8b1a-26f8cbee0463)
+
+##Pencarian secret picture lalu diekstrak menggunakan steghide
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/ab6f3313-ca79-4dc8-9f92-4a2d6623b1ba)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/0363aee4-e680-4533-8bbc-3a8b523eff28)
+
+##Isi dari file txt yang sudah didekode beserta secret picturenya
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/f72623bc-a05a-49b8-ba27-47b1e3948202)
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/92a8e29c-e519-4500-89eb-3544acf20876)
+
+##Hasil akhir dari pengerjaan soal Nomor 3
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/791a6f2f-1ceb-4c77-a26d-8b842611c7a3)
+
+
 ## Soal 4
 > Nayla 5027231054
 
