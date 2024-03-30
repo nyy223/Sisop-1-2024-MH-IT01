@@ -775,7 +775,7 @@ target_path="/home/$(whoami)/log"
 mkdir -p "$target_path"
 dir_size=$(du -sh "$target_path" | awk '{print $1}')
 ```
-Digunakan untuk menampilkan hasil monitor size dari direktori target. 
+Digunakan untuk menampilkan hasil monitor size dari direktori target dengan menggunakan command 'du -sh'. 
 ```bash
 current_time=$(date "+%Y%m%d%H%M%S")
 
@@ -884,7 +884,7 @@ for file in "$log_dir"metrics_${timestamp}*.log; do
     done < "$file"
 done
 ```
-For loop berlaku untuk semua file yang ada di directory log_dir yang memiliki pola nama metrics_${timestamp}*.log. Loop ini akan membaca setaip baris dari file log, lalu menyimpannya ke dalam variabel array seperti mem_total_arr, mem_used_arr, dan lain-lain.
+For loop berlaku untuk semua file yang ada di directory log_dir yang memiliki pola nama metrics_${timestamp}*.log. Loop ini akan membaca setiap baris dari file log, lalu menyimpannya ke dalam variabel array yang sudah dideklarasikan, seperti mem_total_arr, mem_used_arr, dan lain-lain.
 ```bash
 calculate_min() {
     echo "$@" | tr ' ' '\n' | sort -n | head -n1
@@ -908,7 +908,7 @@ calculate_avg() {
     printf "%.f" $(echo "scale=2; $sum / $count" | bc)
 }
 ```
-Fungsi untuk menghitung rata-rata. Mendeklarasikan variabel sum dan count dahulu secara lokal dan men-set nya ke 0. Lalu akan dilakukan loop untuk menjumlahkan nilai-nilai yang ada di dalam array. Variabel count digunakan untuk menghitung jumlah penjumlahan yang terjadi, sehingga secara tidak langsung dapat berguna untuk menghitung jumlah data yang ada di dalam array. Penghitungan rata-rata dilakukan dengan membagi sum (jumlah dari semua nilai) dengan count (jumlah data).
+Fungsi untuk menghitung rata-rata. Mendeklarasikan variabel sum dan count dahulu secara lokal dan men-set nya ke angka 0. Lalu akan dilakukan loop untuk menjumlahkan nilai-nilai yang ada di dalam array. Variabel count digunakan untuk menghitung jumlah penjumlahan yang terjadi, sehingga secara tidak langsung dapat berguna untuk menghitung jumlah data yang ada di dalam array. Penghitungan rata-rata dilakukan dengan membagi sum (jumlah dari semua nilai dalam array) dengan count (banyaknya nilai yang ada dalam array).
 ```bash
 mem_total_arr=($(echo "${mem_total_arr[@]}" | grep -o '[0-9]*'))
 min_mem_total=$(calculate_min "${mem_total_arr[@]}")
@@ -960,7 +960,7 @@ min_path_size=$(calculate_min "${path_size_arr[@]}")
 max_path_size=$(calculate_max "${path_size_arr[@]}")
 avg_path_size=$(calculate_avg "${path_size_arr[@]}")
 ```
-Pertama, mengubah data yang ada di array agar menjadi nilai numerik saja. Hal ini dilakukan agar perhitungan nilai maksimal, minimal, dan rata-rata dapat dilakukan. Setelah mengubahnya menjadi angka, dilakukan perhitungan nilai maksimal, minimal, dan rata-rata untuk masing-masing array.
+Pada bagian ini, data yang ada di array akan diubah agar menjadi nilai numerik saja. Hal ini dilakukan agar perhitungan nilai maksimal, minimal, dan rata-rata dapat dilakukan. Setelah mengubahnya menjadi angka, dilakukan perhitungan nilai maksimal, minimal, dan rata-rata untuk masing-masing array dengan memanggil fungsi yang sudah dibuat pada bagian sebelumnya.
 ```bash
 echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > "${log_dir}metrics_agg_${timestamp}.log"
 echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,$log_dir,$min_path_size M" >> "${log_dir}metrics_agg_${timestamp}.log"
@@ -968,7 +968,7 @@ echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_me
 echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,$log_dir,$avg_path_size M" >> "${log_dir}metrics_agg_${timestamp}.log"
 chmod 600 "$log_dir/metrics_agg_${current_hour}.log"
 ```
-Mencetak informasi nilai maksimal, minimal, dan rata-rata pada masing-masing array sesuai dengan format yang ditentukan di soal. Chmod 600 berfungsi untuk mengatur akses file log agar hanya pemilik file yang dapat mengakses file tersebut. 
+Mencetak informasi nilai maksimal, minimal, dan rata-rata pada masing-masing array sesuai dengan format yang telah ditentukan di soal. Chmod 600 berfungsi untuk mengatur akses file log agar hanya pemilik file yang dapat mengakses file tersebut. 
 ### Dokumentasi
 Melihat perintah yang dijalankan oleh crontab untuk kedua script sh
 <img width="547" alt="Screenshot 2024-03-29 at 22 39 03" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/88628c11-ee8f-49a5-a7f1-391770eba927">
@@ -980,8 +980,8 @@ Mengecek apakah user lain bisa mengakses file log atau tidak
 <img width="637" alt="Screenshot 2024-03-29 at 22 38 37" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/b88664ae-bc94-49cb-b907-5894b588eb58">
 
 ### Kendala yang dialami
-1. Saat menggunakan code awal (sebelum revisi), perhitungan unutk nilai maksimum, minimum, dan rata-rata dilakukan secara bersamaan untuk semua variabel dengan cara menggabungkannya ke dalam sebuah array. Hal ini menyebabkan format isi file aggregate_minutes_to_hourly_log.sh tidak sesuai dengan ketentuan di soal.
-2. Setelah menggunakan code yang sudah direvisi dan mencoba untuk menjalankannya, muncul pesan yang menunjukkan kesalahan. Namun ketika dicoba untuk menampilkan isi dari file log, outputnya baik-baik saja tanpa ada error.
+1. Saat menggunakan code awal (sebelum revisi), perhitungan untuk nilai maksimum, minimum, dan rata-rata dilakukan secara bersamaan untuk semua variabel dengan cara menggabungkannya ke dalam sebuah array. Hal ini menyebabkan format isi file aggregate_minutes_to_hourly_log.sh tidak sesuai dengan ketentuan di soal.
+2. Setelah menggunakan code yang sudah direvisi dan mencoba untuk menjalankannya, muncul pesan yang menunjukkan kesalahan. Namun ketika dicoba untuk menampilkan isi dari file log, outputnya baik-baik saja tanpa ada kesalahan.
 <img width="813" alt="Screenshot 2024-03-29 at 23 54 44" src="https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/80509033/afd74b31-fc4b-4c31-b571-2e61c2c84584">
 
 
