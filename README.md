@@ -903,23 +903,23 @@ image.log
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/f7fb4137-303d-44a2-8189-51f36089b383)
 
-a. Fontaine
+   a. Fontaine
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/53572a46-c131-4797-b43f-e5c4d0818b98)
 
-b. Inazuma
+   b. Inazuma
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/7e89394d-4408-4f7a-bbd0-b02a8c242139)
 
-c. Liyue
+   c. Liyue
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/09d90fc8-c5b2-47f9-8864-5ce1c772ef65)
 
-d. Mondstat
+   d. Mondstat
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/cb1a6b28-3fce-43ba-a1bc-55e76210136c)
 
-e. Sumeru
+   e. Sumeru
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/281c3c18-62dc-4b40-9bdb-d618127b98c1)
 
