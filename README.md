@@ -88,6 +88,8 @@
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/56afbcd7-52f1-417e-a166-83c1cb29ba1e)
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/2542546d-f890-4a04-bdce-f86b3fe2e081)
 
+### Kendala
+#### Tidak terdapat kendala.
 
 ## Soal 2
 > Rafael (5027231019)
@@ -625,6 +627,8 @@
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/479172b2-7ce9-4c14-8bee-c097ee0cbebd)
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/151918510/4f662fe2-8adf-4eec-bb2f-6bd473f7b87a)
 
+### Kendala
+#### Tidak terdapat kendala.
 
 ## Soal 3
 > Ryan 5027231046
