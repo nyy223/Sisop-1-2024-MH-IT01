@@ -1001,20 +1001,20 @@ Sumeru
 ### Apa saja yang direvisi?
 
 1. Format Tanggal dan Waktu:
-	- Script awal menggunakan $(date) untuk menampilkan tanggal dan waktu saat ini dalam format default.
-        - Pada revisi, saya menentukan format tanggal dan waktu menjadi [%d/%m/%y %H:%M:%S], agar sesuai dengan perintah soal.
+- Script awal menggunakan $(date) untuk menampilkan tanggal dan waktu saat ini dalam format default.
+- Pada revisi, saya menentukan format tanggal dan waktu menjadi [%d/%m/%y %H:%M:%S], agar sesuai dengan perintah soal.
 
 2. Penanganan File Hasil Ekstraksi:
-        - Dalam script awal, nama file hasil ekstraksi selalu temp_extracted.txt, yang berarti file hasil ekstraksi terakhir akan menimpa file sebelumnya jika script dijalankan pada banyak gambar.
-        - Pada revisi, saya mengubah pendekatan ini dengan membuat nama file hasil ekstraksi dinamis berdasarkan nama gambar, dan juga menyimpan file hasil dekripsi dalam format baru (_decoded.txt).
+- Dalam script awal, nama file hasil ekstraksi selalu temp_extracted.txt, yang berarti file hasil ekstraksi terakhir akan menimpa file sebelumnya jika script dijalankan pada banyak gambar.
+- Pada revisi, saya mengubah pendekatan ini dengan membuat nama file hasil ekstraksi dinamis berdasarkan nama gambar, dan juga menyimpan file hasil dekripsi dalam format baru (_decoded.txt).
 
 3. Penggunaan Fungsi dekripsi_hex:
-        - Dalam script awal, saya mendefinisikan dan menggunakan fungsi dekripsi_hex untuk mendekripsi isi file dari hexadecimal.
-        - Pada revisi, fokus perubahannya adalah pada penanganan data base64 dan URL tanpa mencantumkan penggunaan eksplisit fungsi dekripsi_hex, yang menunjukkan adanya perubahan pada cara data didekode.
+- Dalam script awal, saya mendefinisikan dan menggunakan fungsi dekripsi_hex untuk mendekripsi isi file dari hexadecimal.
+- Pada revisi, fokus perubahannya adalah pada penanganan data base64 dan URL tanpa mencantumkan penggunaan eksplisit fungsi dekripsi_hex, yang menunjukkan adanya perubahan pada cara data didekode.
 
 4. Penanganan Hasil Dekripsi:
-        - Script awal mengandalkan dekripsi data hexadecimal untuk menentukan langkah selanjutnya, termasuk pengunduhan konten dari URL yang ditemukan.
-        - Pada revisi, saya menambahkan pengecekan untuk URL yang valid langsung dari data yang diekstrak dan didekode dari base64, serta memberikan konfirmasi di terminal tentang keberhasilan pengunduhan.
+- Script awal mengandalkan dekripsi data hexadecimal untuk menentukan langkah selanjutnya, termasuk pengunduhan konten dari URL yang ditemukan.
+- Pada revisi, saya menambahkan pengecekan untuk URL yang valid langsung dari data yang diekstrak dan didekode dari base64, serta memberikan konfirmasi di terminal tentang keberhasilan pengunduhan.
 
 ### Kendala yang dialami
 
