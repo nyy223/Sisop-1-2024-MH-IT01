@@ -724,6 +724,62 @@ image.log
 
 #### search.sh
 
+#### sebelum direvisi
+
+	#!/bin/bash
+	
+	# Tentukan direktori tempat gambar disimpan dan lokasi file log.
+	direktori_gambar="genshin_character"
+	log_file="image.log"
+	
+	# Bersihkan file log dari pencarian sebelumnya.
+	echo "" > "$log_file"
+	
+	# Fungsi untuk mendekripsi teks dari hexadecimal.
+	dekripsi_hex() {
+	    echo "$1" | xxd -r -p
+	}
+	
+	# Mulai pencarian di setiap file gambar.
+	find "$direktori_gambar" -type f -name "*.jpg" | while read gambar; do
+	    # Tampilkan proses pencarian di log file.
+	    echo "$(date) [CHECKING] $gambar" >> "$log_file"
+	    
+	    # Mengekstrak teks dari gambar. Ganti dengan lokasi/tempat menyimpan file ekstraksi.
+	    ekstrak_file="temp_extracted.txt"
+	    steghide extract -sf "$gambar" -xf "$ekstrak_file" -p "" >& /dev/null
+	    
+	    # Cek apakah ekstraksi berhasil.
+	    if [ -f "$ekstrak_file" ]; then
+	        # Baca dan dekripsi isi file.
+	        hex_content=$(cat "$ekstrak_file")
+	        dekripsi=$(dekripsi_hex "$hex_content")
+	        
+	        # Cek apakah hasil dekripsi adalah URL.
+	        if [[ $dekripsi =~ ^https?:// ]]; then
+	            echo "$(date) [FOUND] $gambar" >> "$log_file"
+	            # Lakukan sesuatu dengan URL, misalnya mendownload konten.
+	            wget "$dekripsi" -O "downloaded_$(basename "$gambar" .jpg).jpg"
+	            # Setelah menemukan URL yang valid, hentikan pencarian.
+	            break
+	        else
+	            # Jika teks yang diekstraksi bukan URL yang diharapkan, catat sebagai NOT FOUND.
+	            echo "$(date) [NOT FOUND] $gambar" >> "$log_file"
+	            # Hapus file teks yang tidak mengandung URL yang dicari.
+	            rm -f "$ekstrak_file"
+	        fi
+	    else
+	        # Jika ekstraksi gagal, catat kejadian tersebut.
+	        echo "$(date) [ERROR] Ekstraksi gagal untuk $gambar" >> "$log_file"
+	    fi
+	    
+	    # Tunggu 1 detik sebelum memeriksa gambar berikutnya.
+	    sleep 1
+	done
+
+
+#### setelah direvisi
+
 	#!/bin/bash
 
 	direktori_gambar="genshin_character"
@@ -940,6 +996,30 @@ Sumeru
 7. Hasil akhir dari pengerjaan soal Nomor 3
 
 ![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/791a6f2f-1ceb-4c77-a26d-8b842611c7a3)
+
+
+### Apa saja yang direvisi?
+
+1. Format Tanggal dan Waktu:
+	- Script awal menggunakan $(date) untuk menampilkan tanggal dan waktu saat ini dalam format default.
+        - Pada revisi, saya menentukan format tanggal dan waktu menjadi [%d/%m/%y %H:%M:%S], agar sesuai dengan perintah soal.
+
+2. Penanganan File Hasil Ekstraksi:
+        - Dalam script awal, nama file hasil ekstraksi selalu temp_extracted.txt, yang berarti file hasil ekstraksi terakhir akan menimpa file sebelumnya jika script dijalankan pada banyak gambar.
+        - Pada revisi, saya mengubah pendekatan ini dengan membuat nama file hasil ekstraksi dinamis berdasarkan nama gambar, dan juga menyimpan file hasil dekripsi dalam format baru (_decoded.txt).
+
+3. Penggunaan Fungsi dekripsi_hex:
+        - Dalam script awal, saya mendefinisikan dan menggunakan fungsi dekripsi_hex untuk mendekripsi isi file dari hexadecimal.
+        - Pada revisi, fokus perubahannya adalah pada penanganan data base64 dan URL tanpa mencantumkan penggunaan eksplisit fungsi dekripsi_hex, yang menunjukkan adanya perubahan pada cara data didekode.
+
+4. Penanganan Hasil Dekripsi:
+        - Script awal mengandalkan dekripsi data hexadecimal untuk menentukan langkah selanjutnya, termasuk pengunduhan konten dari URL yang ditemukan.
+        - Pada revisi, saya menambahkan pengecekan untuk URL yang valid langsung dari data yang diekstrak dan didekode dari base64, serta memberikan konfirmasi di terminal tentang keberhasilan pengunduhan.
+
+### Kendala yang dialami
+
+Script search.sh sebelumnya tidak menemukan satupun gambar yang terenkripsi
+![image](https://github.com/nyy223/Sisop-1-2024-MH-IT01/assets/162680331/74d02807-3db5-451f-a7f1-8354de3eade4)
 
 
 ## Soal 4
