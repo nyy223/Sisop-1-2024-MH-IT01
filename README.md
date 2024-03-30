@@ -656,102 +656,235 @@ image.log
 
 ### Penyelesaian
 #### awal.sh
-	#!/bin/bash
 
+	#!/bin/bash
+	
 	# Download file genshin.zip
 	wget -O genshin.zip --no-check-certificate -r 'https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN'
-
+	
 	# Ekstrak genshin.zip yang berisi genshin_character.zip dan list_character.csv
 	unzip genshin.zip
-
+	
 	# Ekstrak genshin_character.zip ke direktori genshin_character
 	unzip genshin_character.zip
-
+	
 	# Masuk ke direktori genshin_character
 	cd genshin_character
-
+	
 	# Loop melalui setiap file .jpg dalam direktori genshin_character
 	for file in *.jpg; do
-    	# Menghapus bagian '0a.jpg' dari nama file untuk mendapatkan hex string yang sesuai
-    	hexname=$(echo $file | sed 's/0a.jpg//')
-
-    	# Dekode hex string menjadi teks biasa
-    	decoded_name=$(echo -n $hexname | xxd -r -p)
-
-    	# Tambahkan kembali ekstensi .jpg ke nama file yang telah didekode
-    	new_name="${decoded_name}.jpg"
-
-    	# Rename file lama ke nama baru
-    	mv "$file" "$new_name"
-
-    	echo "File $file telah di-rename menjadi $new_name"
+	    # Menghapus bagian '0a.jpg' dari nama file untuk mendapatkan hex string yang sesuai
+	    hexname=$(echo $file | sed 's/0a.jpg//')
+	
+	    # Dekode hex string menjadi teks biasa
+	    decoded_name=$(echo -n $hexname | xxd -r -p)
+	
+	    # Tambahkan kembali ekstensi .jpg ke nama file yang telah didekode
+	    new_name="${decoded_name}.jpg"
+	
+	    # Rename file lama ke nama baru
+	    mv "$file" "$new_name"
+	
+	    echo "File $file telah di-rename menjadi $new_name"
 	done
-
+	
 	# Kembali ke direktori utama
 	cd ..
-
+	
 	# Membaca list_character.csv dan merename file berdasarkan data di dalamnya
 	while IFS=, read -r name region element weapon; do
-    	# Skip header
-    	if [ "$name" == "Nama" ]; then
-        continue
-    	fi
-
-    	# Membangun path baru dan nama file
-    	new_filename="${region} - ${name} - ${element} - ${weapon}.jpg"
-    	old_filename="./genshin_character/${name}.jpg"
-
-    	# Cek jika file dengan nama karakter tersebut ada, lalu rename dan pindah
-    	if [ -f "$old_filename" ]; then
-        	# Membuat direktori berdasarkan region jika belum ada
-        	mkdir -p "./genshin_character/$region"
-        	# Merename dan memindahkan file ke direktori yang sesuai
-        	mv "$old_filename" "./genshin_character/$region/$new_filename"
-    	else
-        	echo "File untuk $name tidak ditemukan."
-    	fi
+	    # Skip header
+	    if [ "$name" == "Nama" ]; then
+	        continue
+	    fi
+	
+	    # Membangun path baru dan nama file
+	    new_filename="${region} - ${name} - ${element} - ${weapon}.jpg"
+	    old_filename="./genshin_character/${name}.jpg"
+	
+	    # Cek jika file dengan nama karakter tersebut ada, lalu rename dan pindah
+	    if [ -f "$old_filename" ]; then
+	        # Membuat direktori berdasarkan region jika belum ada
+	        mkdir -p "./genshin_character/$region"
+	        # Merename dan memindahkan file ke direktori yang sesuai
+	        mv "$old_filename" "./genshin_character/$region/$new_filename"
+	    else
+	        echo "File untuk $name tidak ditemukan."
+	    fi
 	done < list_character.csv
-
+	
 	# Menggunakan sed dan awk untuk menghitung jumlah penggunaan senjata dari file CSV
 	echo "Jumlah pengguna untuk setiap senjata:"
 	sed 's/\r//' list_character.csv | awk -F, 'NR > 1 {gsub(/^ +| +$/, "", $4); count[$4]++} END {for (weapon in count) print weapon " = " count[weapon]}'
-
+	
 	# Hapus file zip dan CSV yang tidak lagi dibutuhkan
 	rm -f genshin.zip genshin_character.zip list_character.csv
-
+	
 	echo "File sudah di dekode dan terorganisir, file zip dan csv juga sudah dihapus."
 
 #### search.sh
 
 	#!/bin/bash
 
+	direktori_gambar="genshin_character"
+	log_file="image.log"
+
+	# Bersihkan file log dari pencarian sebelumnya.
+	echo "" > "$log_file"
+
+	# Mencari file dan memproses tanpa subshell
+		while IFS= read -r gambar; do
+    		# Format tanggal dan waktu untuk log.
+    		waktu=$(date +"[%d/%m/%y %H:%M:%S]")
+    		echo "$waktu [CHECKING] $gambar" >> "$log_file"
+    
+    		ekstrak_file="${gambar%.jpg}.txt"
+    		dekripsi_file="$(basename "${gambar%.jpg}")_decoded.txt"
+
+    		if steghide extract -sf "$gambar" -xf "$ekstrak_file" -p "" >& /dev/null; then
+        		if [ -s "$ekstrak_file" ]; then
+            		dekripsi=$(base64 --decode -i "$ekstrak_file")
+            		if [[ $dekripsi =~ ^https?:// ]]; then
+                		echo "$waktu [FOUND] $gambar" >> "$log_file"
+                		echo "$dekripsi" > "$dekripsi_file"
+                		# Proses pengunduhan konten dari URL yang ditemukan.
+                		wget "$dekripsi" -O "$(basename "${gambar%.jpg}")" >& /dev/null
+                		echo "Ketemu Nih Bang! $(basename "${gambar%.jpg}")"
+                		# Memberikan umpan balik langsung di terminal.
+                		echo "File berhasil ditemukan dan diunduh: $dekripsi"
+                		# Menghentikan loop setelah menemukan dan mengunduh file yang diinginkan.
+                		break
+            		else
+                		echo "$waktu [NOT FOUND] $gambar" >> "$log_file"
+            		fi
+            		rm -f "$ekstrak_file"
+        	else
+            		echo "$waktu [ERROR] File kosong setelah ekstraksi untuk $gambar" >> "$log_file"
+        	fi
+    	else
+        	echo "$waktu [ERROR] Ekstraksi gagal untuk $gambar" >> "$log_file"
+    	fi
+	done < <(find "$direktori_gambar" -type f -name "*.jpg")
+
 ### Penjelasan awal.sh
 
 1. Download File: Script memulai dengan mendownload sebuah file ZIP dari URL yang disediakan, yang berisi gambar karakter Genshin Impact dan file CSV dengan detail karakter.
 
+		# Download file genshin.zip
+		wget -O genshin.zip --no-check-certificate -r 'https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN'
+
+
 2. Ekstraksi File: Setelah file ZIP didownload, script mengekstrak isinya untuk mengakses gambar karakter dan file CSV yang berisi informasi tentang karakter tersebut.
 
-3. Dekode Nama File: Setiap nama file gambar dienkripsi dalam format hexadecimal. Script mendekode nama-nama ini kembali ke teks biasa.
+		# Ekstrak genshin.zip yang berisi genshin_character.zip dan list_character.csv
+		unzip genshin.zip
+
+		# Ekstrak genshin_character.zip ke direktori genshin_character
+		unzip genshin_character.zip
+
+
+3. Dekode Nama File: Setiap nama file gambar dienkripsi dalam format hexadecimal. Script menghapus '0a' pada nama file jpg lalu mengdekode dari hexadecimal ke teks biasa dan merename file.
+
+		# Loop melalui setiap file .jpg dalam direktori genshin_character
+		for file in *.jpg; do
+    			# Menghapus bagian '0a.jpg' dari nama file untuk mendapatkan hex string yang sesuai
+	    		hexname=$(echo $file | sed 's/0a.jpg//')
+
+    			# Dekode hex string menjadi teks biasa
+    			decoded_name=$(echo -n $hexname | xxd -r -p)
+
+    			# Tambahkan kembali ekstensi .jpg ke nama file yang telah didekode
+    			new_name="${decoded_name}.jpg"
+
+    			# Rename file lama ke nama baru
+    			mv "$file" "$new_name"
+
+    			echo "File $file telah di-rename menjadi $new_name"
+		done
 
 4. Reorganisasi File: Berdasarkan data dari file CSV, script mengorganisir ulang gambar ke dalam direktori yang sesuai dengan region karakter, dan merename file gambar sesuai dengan format Region - Nama - Elemen - Senjata.jpg.
 
+		# Membaca list_character.csv dan merename file berdasarkan data di dalamnya
+		while IFS=, read -r name region element weapon; do
+		    # Skip header
+		    if [ "$name" == "Nama" ]; then
+		        continue
+		    fi
+		
+		    # Membangun path baru dan nama file
+		    new_filename="${region} - ${name} - ${element} - ${weapon}.jpg"
+		    old_filename="./genshin_character/${name}.jpg"
+		
+		    # Cek jika file dengan nama karakter tersebut ada, lalu rename dan pindah
+		    if [ -f "$old_filename" ]; then
+		        # Membuat direktori berdasarkan region jika belum ada
+		        mkdir -p "./genshin_character/$region"
+		        # Merename dan memindahkan file ke direktori yang sesuai
+		        mv "$old_filename" "./genshin_character/$region/$new_filename"
+		    else
+		        echo "File untuk $name tidak ditemukan."
+		    fi
+		done < list_character.csv
+
 5. Hitung Pengguna Senjata: Script menghitung jumlah karakter yang menggunakan setiap jenis senjata dan menampilkan hasilnya.
+
+		# Menggunakan sed dan awk untuk menghitung jumlah penggunaan senjata dari file CSV
+		echo "Jumlah pengguna untuk setiap senjata:"
+		sed 's/\r//' list_character.csv | awk -F, 'NR > 1 {gsub(/^ +| +$/, "", $4); count[$4]++} END {for (weapon in count) print weapon " = " count[weapon]}'
+
 
 6. Pembersihan: Sebagai langkah terakhir, script menghapus file yang tidak lagi diperlukan untuk menghemat ruang penyimpanan.
 
-#### Penjelasan awal.sh Per Baris
+		# Hapus file zip dan CSV yang tidak lagi dibutuhkan
+		rm -f genshin.zip genshin_character.zip list_character.csv
 
-Baris 1-2: Shebang untuk menjalankan script dengan bash dan mendefinisikan URL dari file ZIP yang berisi data dan gambar karakter Genshin Impact.
+### Penjelasan search.sh
 
-Baris 4-5: Mengunduh file ZIP menggunakan wget dan menyimpannya sebagai genshin.zip.
+1. Menetapkan direktori tempat gambar disimpan dan nama file untuk pencatatan log proses dan membersihkan log sebelumnya.
 
-Baris 7: Mengekstrak isi dari genshin.zip yang berisi genshin_character.zip dan selanjutnya mengekstrak genshin_character.zip ke direktori genshin_character.
+		direktori_gambar="genshin_character"
+		log_file="image.log"
+		echo "" > "$log_file"
 
-Baris 9-21: Membaca list_character.csv, melewati header, dan untuk setiap karakter, mencari file gambar yang sesuai berdasarkan nama yang di-decode dari hexadecimal, kemudian merename dan memindahkan gambar tersebut ke direktori yang sesuai dengan region karakter.
+2. Menyimpan waktu saat ini ke dalam variabel waktu dan mencatat ke file log bahwa script sedang memeriksa file gambar tertentu sesuai format soal.
 
-Baris 23-32: Menginisialisasi sebuah associative array untuk menghitung jumlah penggunaan senjata, membaca list_character.csv lagi, dan mengumpulkan data jumlah penggunaan setiap senjata. Kemudian menampilkan hasilnya.
+		waktu=$(date +"[%d/%m/%y %H:%M:%S]")
+		echo "$waktu [CHECKING] $gambar" >> "$log_file"
 
-Baris 34-35: Menghapus file genshin.zip, genshin_character.zip, dan list_character.csv yang tidak lagi dibutuhkan setelah pemrosesan selesai.
+3. Menyiapkan nama file untuk hasil ekstraksi dan hasil dekripsi. Hasil dekripsi akan disimpan dengan tambahan _decoded pada nama file asli.
+
+		ekstrak_file="${gambar%.jpg}.txt"
+		dekripsi_file="$(basename "${gambar%.jpg}")_decoded.txt"
+
+4. Menggunakan steghide untuk mengekstrak data tersembunyi dari gambar ke file teks. 
+
+		 if steghide extract -sf "$gambar" -xf "$ekstrak_file" -p "" >& /dev/null; then
+		        if [ -s "$ekstrak_file" ]; then
+		            dekripsi=$(base64 --decode -i "$ekstrak_file")
+
+5. Jika teks yang didekode merupakan URL yang valid, script mengunduh konten dari URL tersebut dan memberikan umpan balik ke terminal.
+
+		            if [[ $dekripsi =~ ^https?:// ]]; then
+		                echo "$waktu [FOUND] $gambar" >> "$log_file"
+		                echo "$dekripsi" > "$dekripsi_file"
+		                # Proses pengunduhan konten dari URL yang ditemukan.
+		                wget "$dekripsi" -O "$(basename "${gambar%.jpg}")" >& /dev/null
+		                echo "Ketemu Nih Bang! $(basename "${gambar%.jpg}")"
+		                # Memberikan umpan balik langsung di terminal.
+		                echo "File berhasil ditemukan dan diunduh: $dekripsi"
+		                # Menghentikan loop setelah menemukan dan mengunduh file yang diinginkan.
+		                break
+
+6. Menghapus file ekstraksi setelah selesai diproses. Jika URL ditemukan dan konten berhasil diunduh. Jika tidak menemukan url yang valid akan mengoutput NOT FOUND.
+
+		            else
+		                echo "$waktu [NOT FOUND] $gambar" >> "$log_file"
+		            fi
+		            rm -f "$ekstrak_file"
+
+7. Menggunakan find untuk mencari file gambar .jpg dalam direktori yang ditentukan dan memproses setiap file satu per satu.
+
+		done < <(find "$direktori_gambar" -type f -name "*.jpg")
 
 
 ## Soal 4
